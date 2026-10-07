@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c10">
+<link rel="manifest" href="manifest.json">
+<title>WOD</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0c10;color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:760px;margin:auto;padding:18px 14px 88px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font-weight:900;letter-spacing:2px}.muted{color:#8d94a3;font-size:12px}.card{background:#14161d;border:1px solid #272b35;border-radius:18px;padding:15px;margin:10px 0}
+.hero{background:linear-gradient(145deg,#1c1730,#14161d);border-color:#3b3159}.eyebrow{font-size:9px;letter-spacing:1.5px;color:#a99bce;font-weight:900}h1{font-size:27px;margin:5px 0 3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field label{display:block;font-size:9px;font-weight:900;color:#8d94a3;margin-bottom:5px;letter-spacing:1px}
+select{width:100%;background:#1a1d25;color:#fff;border:1px solid #303541;border-radius:11px;padding:11px}
+button{font:inherit;color:inherit}.primary,.secondary{width:100%;border-radius:13px;padding:13px;margin-top:9px;font-weight:900}.primary{border:0;background:#8b6df6}.secondary{background:#181b22;border:1px solid #303541}
+.badge{background:#261f38;border:1px solid #44375e;color:#c9baff;border-radius:99px;padding:7px 9px;font-size:10px;font-weight:900}
+.row{display:flex;align-items:center;gap:9px;padding:11px 0;border-bottom:1px solid #252932}.row:last-child{border:0}.num{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#25202f;color:#c7baff;font-size:11px;font-weight:900}.grow{flex:1;min-width:0}.name{font-size:14px;font-weight:850}.meta{font-size:9px;color:#8d94a3;margin-top:4px}.icon{width:34px;height:32px;background:#191c23;border:1px solid #303541;border-radius:9px}.fav{color:#ffd45a}
+.extra{display:flex;align-items:center;gap:9px;background:#17141f;border:1px solid #332b43;border-radius:13px;padding:10px;margin:9px 0}.extra b{font-size:9px;color:#9c91b9;letter-spacing:1px}.extra strong{flex:1;font-size:13px}
+.bar{height:7px;background:#292d36;border-radius:99px;overflow:hidden;margin-top:12px}.fill{height:100%;background:linear-gradient(90deg,#55df88,#ffb454,#ff6675)}
+.score{display:flex;justify-content:space-between;font-size:10px;color:#8d94a3;margin-top:7px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.chip{font-size:8px;font-weight:900;border:1px solid #343947;background:#1b1e26;border-radius:99px;padding:5px 7px}
+.view{display:none}.view.active{display:block}.tabs{position:fixed;bottom:0;left:0;right:0;height:66px;background:#0d0e13f2;border-top:1px solid #282c35;display:flex;justify-content:center;backdrop-filter:blur(16px)}.tabs button{background:none;border:0;color:#858c9b;flex:1;max-width:180px;font-size:9px;font-weight:900}.tabs button.active{color:#fff}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#191c23;border:1px solid #2b2f38;border-radius:13px;padding:13px}.stat b{font-size:20px;display:block}.stat span{font-size:9px;color:#8d94a3}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div><div class="logo">WOD</div><div class="muted">SMART RANDOMIZER</div></div><button class="icon" onclick="show('setup')">⚙️</button></div>
+
+<section id="workout" class="view active"></section>
+
+<section id="setup" class="view">
+<div class="card"><div class="eyebrow">GENERATOR</div>
+<div class="grid">
+<div class="field"><label>FORMAT</label><select id="format"><option value="rounds">FREE / ROUNDS</option><option value="emom">EMOM</option><option value="amrap">AMRAP</option></select></div>
+<div class="field"><label>FATIGUE / 10</label><select id="fatigue"><option value="3">3 — EASY</option><option value="5">5 — MODERATE</option><option value="7" selected>7 — HARD</option><option value="9">9 — VERY HARD</option></select></div>
+<div class="field"><label>EXERCISES</label><select id="count"><option>5</option><option selected>6</option><option>7</option><option>8</option><option>9</option></select></div>
+<div class="field"><label>LOCATION</label><select id="location"><option value="gym">GYM</option><option value="outdoor">OUTDOOR</option></select></div>
+</div>
+<button class="primary" onclick="generate()">GENERATE</button></div>
+<div class="card"><div class="eyebrow">BUY IN / CASH OUT</div><div class="grid">
+<div class="field"><label>BUY IN</label><select id="buy"><option value="off">OFF</option><option value="on">ON</option></select></div>
+<div class="field"><label>CASH OUT</label><select id="cash"><option value="off">OFF</option><option value="on">ON</option></select></div>
+</div></div>
+</section>
+
+<section id="history" class="view"><div class="card"><div class="eyebrow">HISTORY</div><div id="historyList"></div></div></section>
+<section id="stats" class="view"><div class="card"><div class="eyebrow">STATS</div><div id="stats"></div></div></section>
+
+<div class="tabs">
+<button class="active" onclick="show('workout')">WORKOUT</button>
+<button onclick="show('history')">HISTORY</button>
+<button onclick="show('stats')">STATS</button>
+<button onclick="show('setup')">SETUP</button>
+</div>
+</div>
+
+<script>
+const DATA=[
+["Pull Up","upper","back","biceps",5,"bar","pull","bilateral"],
+["Chin Up","upper","biceps","back",5,"bar","pull","bilateral"],
+["Dips","upper","chest","triceps",5,"dipbar","push","bilateral"],
+["Push Up","upper","chest","triceps",4,"body","push","bilateral"],
+["Close-Grip Push Up","upper","triceps","chest",4,"body","push","bilateral"],
+["Hand Release Push Up","upper","chest","triceps",5,"body","push","bilateral"],
+["Renegade Row","upper","back","core",6,"kb","pull","unilateral"],
+["Inverted Row","upper","back","biceps",4,"bar","pull","bilateral"],
+["Goblet Squat","lower","quads","glutes",4,"kb","squat","bilateral"],
+["Bulgarian Split Squat","lower","quads","glutes",6,"body","lunge","unilateral"],
+["Deadlift","lower","hamstrings","glutes",7,"kb","hinge","bilateral"],
+["Thruster","lower","quads","shoulders",8,"kb","squat","bilateral"],
+["Step Up","lower","glutes","quads",4,"box","lunge","unilateral"],
+["Side Plank","core","obliques","core",3,"body","anti-lateral","unilateral"],
+["Plank","static","core","shoulders",3,"body","anti-extension","bilateral"],
+["Dead Hang","static","back","grip",3,"bar","pull","bilateral"],
+["Wall Sit","static","quads","core",3,"body","squat","bilateral"],
+["Sit Up","core","abs","hip flexors",3,"body","flexion","bilateral"],
+["Leg Raise","core","abs","hip flexors",4,"body","flexion","bilateral"],
+["Mountain Climber","hi","core","quads",6,"body","locomotion","unilateral"],
+["Plank KB Drag","core","core","shoulders",5,"kb","anti-rotation","unilateral"],
+["Hyperextension","core","lower back","glutes",4,"bench","hinge","bilateral"],
+["Burpee","hi","chest","quads",8,"body","locomotion","bilateral"],
+["Box Jump","hi","quads","glutes",8,"box","squat","bilateral"],
+["Jump Rope","hi","calves","quads",5,"rope","locomotion","bilateral"],
+["KB Swing","hi","glutes","hamstrings",7,"kb","hinge","bilateral"],
+["1-Handed KB Swing","hi","glutes","hamstrings",7,"kb","hinge","unilateral"],
+["Battle Rope","hi","shoulders","arms",7,"rope","push","bilateral"],
+["Run","hi","quads","calves",7,"outdoor","locomotion","bilateral"],
+["Sprint","hi","quads","glutes",9,"outdoor","locomotion","bilateral"],
+["Row","hi","back","legs",7,"machine","pull","bilateral"],
+["Air Bike","hi","quads","core",7,"machine","locomotion","bilateral"],
+["Slam Ball","hi","core","shoulders",7,"ball","rotation","bilateral"],
+["Wall Ball","hi","quads","shoulders",7,"ball","squat","bilateral"],
+["Russian Twist","core","obliques","abs",4,"kb","rotation","bilateral"],
+["Kneeling KB Chop","core","obliques","shoulders",4,"kb","rotation","unilateral"],
+["Banded Rotation","core","obliques","abs",3,"band","rotation","bilateral"]
+];
+
+const KEY="wod_v15";
+let history=JSON.parse(localStorage.getItem(KEY+"_history")||"[]");
+let favs=JSON.parse(localStorage.getItem(KEY+"_favs")||"[]");
+let workout=null;
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+function pool(location){
+ return DATA.map(x=>({name:x[0],cat:x[1],primary:x[2],secondary:x[3],fatigue:x[4],req:x[5],pattern:x[6],stance:x[7]}))
+ .filter(e=>location==="outdoor"|| (e.name!=="Run"&&e.name!=="Sprint"));
+}
+function recentPenalty(e){
+ let p=0;
+ history.slice(0,10).forEach(w=>{
+  const days=(Date.now()-new Date(w.date))/86400000;
+  (w.exercises||[]).forEach(x=>{
+   if(x.name===e.name)p+=days<1?50:days<2?32:days<4?16:days<7?6:0;
+   else if(x.primary===e.primary)p+=Math.max(0,8-days);
+  });
+ });
+ return p;
+}
+function pairPenalty(a,b){
+ if(!a||!b)return 0;
+ if(a.cat==="hi"&&b.cat==="hi")return 10000;
+ let p=0;
+ if(a.cat===b.cat)p+=24;
+ if(a.primary===b.primary)p+=32;
+ if(a.primary===b.secondary||a.secondary===b.primary)p+=16;
+ if(a.secondary===b.secondary)p+=7;
+ if(a.pattern===b.pattern)p+=16;
+ return p;
+}
+function score(arr){
+ let s=0,t=+$("fatigue").value;
+ arr.forEach(e=>s+=recentPenalty(e)*.55);
+ for(let i=0;i<arr.length;i++)s+=pairPenalty(arr[i],arr[(i+1)%arr.length]);
+ const avg=arr.reduce((a,e)=>a+e.fatigue,0)/arr.length;
+ s+=Math.abs(avg-t)*14;
+ if(!arr.some(e=>e.cat==="core"))s+=12;
+ if(new Set(arr.map(e=>e.fatigue)).size<3)s+=7;
+ return s;
+}
+function generate(){
+ const n=+$("count").value, loc=$("location").value, base=pool(loc);
+ let best=null,bestScore=Infinity;
+ for(let tries=0;tries<700;tries++){
+  let left=base.slice(),arr=[];
+  for(let i=0;i<n;i++){
+   const choices=left.map(e=>{
+    let p=recentPenalty(e)*.55;
+    if(arr.length)p+=pairPenalty(arr[arr.length-1],e);
+    if(i===n-1&&arr.length)p+=pairPenalty(e,arr[0])*1.15;
+    p+=Math.random()*28;
+    return {e,p};
+   }).sort((a,b)=>a.p-b.p).slice(0,7);
+   const e=pick(choices).e;
+   arr.push(e);left=left.filter(x=>x.name!==e.name);
+  }
+  if(arr.every((e,i)=>pairPenalty(e,arr[(i+1)%n])<10000)){
+   const s=score(arr);if(s<bestScore){bestScore=s;best=arr;}
+  }
+ }
+ const used=new Set(best.map(e=>e.name));
+ const buy=$("buy").value==="on"?pick(base.filter(e=>e.cat==="hi"&&!used.has(e.name))):null;
+ if(buy)used.add(buy.name);
+ const cash=$("cash").value==="on"?pick(base.filter(e=>["hi","core","static"].includes(e.cat)&&!used.has(e.name))):null;
+ workout={date:new Date().toISOString(),format:$("format").value,location:loc,intensity:+$("fatigue").value,exercises:best,buy,cash};
+ render();
+}
+function reroll(i){
+ const w=workout,base=pool(w.location),used=new Set(w.exercises.map((e,j)=>j!==i?e.name:null));
+ let opts=base.filter(e=>!used.has(e.name)).map(e=>{let a=w.exercises.slice();a[i]=e;return {e,s:score(a)+Math.random()*16}}).filter(x=>x.s<Infinity).sort((a,b)=>a.s-b.s);
+ if(opts[0]){w.exercises[i]=opts[0].e;render();}
+}
+function toggleFav(n){favs=favs.includes(n)?favs.filter(x=>x!==n):[...favs,n];localStorage.setItem(KEY+"_favs",JSON.stringify(favs));render();}
+function save(){if(!workout)return;history.unshift(JSON.parse(JSON.stringify(workout)));history=history.slice(0,100);localStorage.setItem(KEY+"_history",JSON.stringify(history));renderHistory();}
+function show(id){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",["workout","history","stats","setup"][i]===id));if(id==="history")renderHistory();if(id==="stats")renderStats();}
+function render(){
+ const w=workout,avg=w.exercises.reduce((a,e)=>a+e.fatigue,0)/w.exercises.length;
+ const format=w.format==="emom"?"EMOM":w.format==="amrap"?"AMRAP":"ROUNDS";
+ let h=`<div class="card hero"><div class="eyebrow">${format} · ${w.location.toUpperCase()}</div><h1>${w.exercises.length} EXERCISES</h1><div class="muted">Target fatigue ${w.intensity}/10</div><div class="chips"><span class="chip">${w.exercises.filter(e=>e.cat==="core").length} CORE</span><span class="chip">${w.exercises.filter(e=>e.cat==="hi").length} CONDITIONING</span><span class="chip">${w.exercises.filter(e=>e.cat==="upper").length} UPPER</span><span class="chip">${w.exercises.filter(e=>e.cat==="lower").length} LOWER</span></div><div class="bar"><div class="fill" style="width:${Math.min(100,avg*10)}%"></div></div><div class="score"><span>FATIGUE</span><b>${avg.toFixed(1)} / 10</b></div></div>`;
+ if(w.buy)h+=`<div class="extra"><b>BUY IN</b><strong>${w.buy.name}</strong><button class="icon" onclick="rerollExtra('buy')">↻</button></div>`;
+ h+=`<div class="card">`;
+ w.exercises.forEach((e,i)=>{h+=`<div class="row"><div class="num">${i+1}</div><div class="grow"><div class="name">${e.name}</div><div class="meta">${e.cat.toUpperCase()} · ${e.primary} + ${e.secondary} · ${e.pattern.toUpperCase()} · ${e.fatigue}/10</div></div><button class="icon ${favs.includes(e.name)?"fav":""}" onclick="toggleFav('${e.name.replaceAll("'","\\'")}')">★</button><button class="icon" onclick="reroll(${i})">↻</button></div>`});
+ h+=`</div>`;
+ if(w.cash)h+=`<div class="extra"><b>CASH OUT</b><strong>${w.cash.name}</strong><button class="icon" onclick="rerollExtra('cash')">↻</button></div>`;
+ h+=`<button class="primary" onclick="save()">SAVE WORKOUT</button><button class="secondary" onclick="generate()">SMART REROLL</button>`;
+ $("workout").innerHTML=h;
+}
+function rerollExtra(kind){
+ const used=new Set(workout.exercises.map(e=>e.name));if(workout.buy)used.add(workout.buy.name);if(workout.cash)used.add(workout.cash.name);
+ const p=pool(workout.location).filter(e=>!used.has(e.name)&&(kind==="buy"?e.cat==="hi":["hi","core","static"].includes(e.cat)));
+ if(p.length){workout[kind]=pick(p);render();}
+}
+function renderHistory(){$("historyList").innerHTML=history.length?history.map(w=>`<div class="row"><div class="grow"><div class="name">${new Date(w.date).toLocaleDateString()} · ${w.format.toUpperCase()}</div><div class="meta">${w.exercises.map(e=>e.name).join(" · ")}</div></div></div>`).join(""):"<div class='muted'>No saved workouts yet.</div>";}
+function renderStats(){let ex=history.flatMap(w=>w.exercises||[]);$("stats").innerHTML=`<div class="statgrid"><div class="stat"><b>${history.length}</b><span>WORKOUTS</span></div><div class="stat"><b>${ex.length}</b><span>EXERCISES</span></div></div>`;}
+generate();
+</script>
+</body>
+</html>
